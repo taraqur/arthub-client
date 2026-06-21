@@ -20,6 +20,7 @@ export default function Navbar() {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Browse Artworks', href: '/browse' },
+    { name: 'Artists', href: '/artists' },
   ];
 
   const dashboardLinks = {
