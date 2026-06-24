@@ -14,7 +14,7 @@ export default function SubscriptionPage() {
 
   const fetchProfile = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/users/profile", { credentials: "include" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         setCurrentTier(data.subscriptionTier || "free");
@@ -32,7 +32,7 @@ export default function SubscriptionPage() {
     try {
       setUpgrading(tier);
       
-      const res = await fetch("http://localhost:5000/api/payments/subscription/checkout", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/subscription/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tier }),

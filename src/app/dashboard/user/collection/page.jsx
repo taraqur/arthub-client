@@ -14,7 +14,7 @@ export default function BoughtArtworksPage() {
 
   const fetchPurchases = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/purchases", { credentials: "include" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/purchases`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         // Extract artworks from purchases

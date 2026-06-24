@@ -23,13 +23,13 @@ export default function Comments({ artworkId }) {
 
   const checkAuthAndPurchase = async () => {
     try {
-        const res = await fetch("http://localhost:5000/api/users/profile", { credentials: "include" });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile`, { credentials: "include" });
         if (res.ok) {
             const userData = await res.json();
             setUser(userData);
             
             // Check purchase
-            const purchaseRes = await fetch(`http://localhost:5000/api/purchases/check/${artworkId}`, { credentials: "include" });
+            const purchaseRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/purchases/check/${artworkId}`, { credentials: "include" });
             if (purchaseRes.ok) {
                 const purchaseData = await purchaseRes.json();
                 setHasPurchased(purchaseData.purchased);
@@ -40,7 +40,7 @@ export default function Comments({ artworkId }) {
 
   const fetchComments = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/comments/${artworkId}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/comments/${artworkId}`);
       if (res.ok) {
         setComments(await res.json());
       }
@@ -57,7 +57,7 @@ export default function Comments({ artworkId }) {
     
     try {
       setSubmitting(true);
-      const res = await fetch("http://localhost:5000/api/comments", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ artworkId, comment: newComment }),
@@ -84,7 +84,7 @@ export default function Comments({ artworkId }) {
   const handleDelete = async (commentId) => {
       if (!confirm("Are you sure you want to delete this comment?")) return;
       try {
-          const res = await fetch(`http://localhost:5000/api/comments/${commentId}`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}`, {
               method: "DELETE",
               credentials: "include"
           });
@@ -103,7 +103,7 @@ export default function Comments({ artworkId }) {
   const handleEditSubmit = async (commentId) => {
       if (!editContent.trim()) return;
       try {
-          const res = await fetch(`http://localhost:5000/api/comments/${commentId}`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ comment: editContent }),

@@ -1,19 +1,24 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useSession } from "@/lib/auth-client";
+import toast from "react-hot-toast";
 
 export default function ArtworkDetails() {
   const params = useParams();
+  const router = useRouter();
+  const { data: session } = useSession();
   const [artwork, setArtwork] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [buying, setBuying] = useState(false);
 
   useEffect(() => {
     const fetchArtwork = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/artworks/${params.id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artworks/${params.id}`);
         if (!res.ok) throw new Error("Artwork not found");
         const data = await res.json();
         setArtwork(data);
@@ -27,6 +32,36 @@ export default function ArtworkDetails() {
       fetchArtwork();
     }
   }, [params.id]);
+
+  const handleBuyNow = async () => {
+      if (!session) {
+          toast("Please sign in to purchase.", { icon: "🔒" });
+          router.push("/login");
+          return;
+      }
+
+      try {
+          setBuying(true);
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/create-checkout-session`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ artworkId: artwork._id })
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+              throw new Error(data.message || "Failed to initiate purchase.");
+          }
+
+          if (data.url) {
+              window.location.href = data.url;
+          }
+      } catch (error) {
+          console.error("Purchase error:", error);
+          toast.error(error.message || "Failed to process purchase.");
+          setBuying(false);
+      }
+  };
 
   if (loading) {
     return (
@@ -137,11 +172,22 @@ export default function ArtworkDetails() {
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-4 mb-8">
-              <button className="w-full bg-[#5A4AF4] hover:bg-[#4d3ee0] text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 shadow-md">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                BUY NOW WITH STRIPE
+              <button 
+                onClick={handleBuyNow}
+                disabled={buying || artwork.status === 'sold'}
+                className="w-full bg-[#5A4AF4] hover:bg-[#4d3ee0] disabled:bg-[#8f86f7] disabled:cursor-not-allowed text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 shadow-md">
+                {buying ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : artwork.status === 'sold' ? (
+                    "SOLD OUT"
+                ) : (
+                    <>
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        BUY NOW WITH STRIPE
+                    </>
+                )}
               </button>
               <button className="w-full py-3.5 px-4 bg-white border border-gray-300 text-gray-900 font-semibold hover:border-gray-900 hover:bg-gray-50 transition-colors rounded-lg shadow-sm">
                 Add To Wishlist

@@ -21,7 +21,7 @@ export default function BrowseArtworks() {
         const fetchArtworks = async () => {
             setLoading(true);
             try {
-                let url = `http://localhost:5000/api/artworks?sort=${sort}`;
+                let url = `${process.env.NEXT_PUBLIC_API_URL}/api/artworks?sort=${sort}`;
                 if (search) url += `&search=${search}`;
                 if (category !== "All") url += `&category=${category}`;
                 if (minPrice) url += `&minPrice=${minPrice}`;

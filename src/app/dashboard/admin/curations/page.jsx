@@ -14,7 +14,7 @@ export default function CurationsPage() {
   const fetchArtworks = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/admin/artworks", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/artworks`, {
         credentials: "include"
       });
       if (res.ok) {
@@ -30,7 +30,7 @@ export default function CurationsPage() {
 
   const handleStatusChange = async (id, status) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/artworks/${id}/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/artworks/${id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -45,7 +45,7 @@ export default function CurationsPage() {
   const handleDelete = async (id) => {
     if (!confirm("Delete this artwork?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/artworks/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/artworks/${id}`, {
         method: 'DELETE',
         credentials: "include"
       });

@@ -14,7 +14,7 @@ export default function TransactionsPage() {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/admin/transactions", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/transactions`, {
         credentials: "include"
       });
       if (res.ok) {

@@ -14,7 +14,7 @@ export default function AuditLogsPage() {
   const fetchLogs = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/admin/logs", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logs`, {
         credentials: "include"
       });
       if (res.ok) {

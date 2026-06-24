@@ -11,7 +11,7 @@ export default function FeaturedArtworks() {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/artworks?limit=6');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artworks?limit=6`);
         if (res.ok) {
           const data = await res.json();
           // We can just grab the latest 6

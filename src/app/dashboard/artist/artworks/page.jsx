@@ -23,7 +23,7 @@ export default function ManageArtworksPage() {
       // Better yet, update the backend to have a GET /api/artworks/me or similar.
       // For now, let's fetch all and the user will see it. 
       // Actually, since this is a mock frontend for the artist, we'll fetch all artworks
-      const res = await fetch("http://localhost:5000/api/artworks", { credentials: "include" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artworks`, { credentials: "include" });
       if (res.ok) {
         // Filter on frontend for now if needed, but we don't have artistId. 
         // Let's just display what we get from the API
@@ -40,7 +40,7 @@ export default function ManageArtworksPage() {
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this artwork?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/artworks/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artworks/${id}`, {
         method: "DELETE",
         credentials: "include"
       });

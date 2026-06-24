@@ -15,7 +15,7 @@ export default function UserProfilePage() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/users/profile", { credentials: "include" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         setProfile({
@@ -36,7 +36,7 @@ export default function UserProfilePage() {
     e.preventDefault();
     try {
       setSaving(true);
-      const res = await fetch("http://localhost:5000/api/users/profile", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: profile.name, image: profile.image }),

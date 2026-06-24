@@ -21,8 +21,8 @@ export default function ArtistDashboard() {
     try {
       setLoading(true);
       const [artworksRes, salesRes] = await Promise.all([
-        fetch("http://localhost:5000/api/artworks", { credentials: "include" }),
-        fetch("http://localhost:5000/api/sales/history", { credentials: "include" })
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artworks`, { credentials: "include" }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sales/history`, { credentials: "include" })
       ]);
 
       let artworks = [];
