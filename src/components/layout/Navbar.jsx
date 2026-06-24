@@ -2,14 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useSession, signOut } from '@/lib/auth-client';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDashboardDropdownOpen, setIsDashboardDropdownOpen] = useState(false);
-  const [userRole, setUserRole] = useState('artist'); // Mock role: 'artist', 'buyer', 'admin'
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Mock auth state
+  
+  const { data: session } = useSession();
+  const isLoggedIn = !!session;
+  const userRole = session?.user?.role || 'buyer';
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -17,28 +21,40 @@ export default function Navbar() {
     setIsDashboardDropdownOpen(false);
   }, [pathname]);
 
+  if (pathname.startsWith('/dashboard')) {
+    return null;
+  }
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push('/login');
+  };
+
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Browse Artworks', href: '/browse' },
     { name: 'Artists', href: '/artists' },
   ];
 
+  if (!isLoggedIn || userRole === 'buyer' || userRole === 'user') {
+    navLinks.push({ name: 'Pricing', href: '/#pricing' });
+  }
+
   const dashboardLinks = {
     artist: [
-      { name: 'My Artworks', href: '/dashboard/artworks' },
-      { name: 'Sales', href: '/dashboard/sales' },
+      { name: 'Artist Dashboard', href: '/dashboard/artist' },
+      { name: 'My Portfolio', href: '/dashboard/artist/artworks' },
     ],
-    buyer: [
-      { name: 'My Collection', href: '/dashboard/collection' },
-      { name: 'Orders', href: '/dashboard/orders' },
+    user: [
+      { name: 'Collector Dashboard', href: '/dashboard/user' },
+      { name: 'My Collection', href: '/dashboard/user/collection' },
     ],
     admin: [
-      { name: 'All Users', href: '/admin/users' },
-      { name: 'Platform Settings', href: '/admin/settings' },
+      { name: 'Admin Dashboard', href: '/dashboard/admin' },
     ]
   };
 
-  const currentDashboardLinks = dashboardLinks[userRole] || [];
+  const currentDashboardLinks = dashboardLinks[userRole] || dashboardLinks.user;
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white transition-all duration-300 shadow-sm border-b border-gray-100">
@@ -148,7 +164,7 @@ export default function Navbar() {
               {/* Login / Actions */}
               {isLoggedIn ? (
                  <button 
-                  onClick={() => setIsLoggedIn(false)}
+                  onClick={handleLogout}
                   className="flex items-center gap-2 bg-[#1a1a1a] hover:bg-black text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -267,7 +283,7 @@ export default function Navbar() {
 
             {isLoggedIn ? (
               <button
-                onClick={() => setIsLoggedIn(false)}
+                onClick={handleLogout}
                 className="w-full flex items-center justify-center gap-2 bg-[#1a1a1a] text-white px-4 py-3 rounded-md text-base font-medium hover:bg-black transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

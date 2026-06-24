@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect } from 'react';
+import { useSession } from '@/lib/auth-client';
 import Hero from '@/components/home/Hero';
 import Categories from '@/components/home/Categories';
 import TopArtists from '@/components/home/TopArtists';
 import FeaturedArtworks from '@/components/home/FeaturedArtworks';
+import Pricing from '@/components/home/Pricing';
 
 export default function Home() {
+  const { data: session } = useSession();
+  const userRole = session?.user?.role || 'buyer';
+  const showPricing = !session || userRole === 'buyer' || userRole === 'user';
+
   useEffect(() => {
     // Micro-interactions and parallax-ish effects
     const handleMouseMove = (e) => {
@@ -58,6 +64,7 @@ export default function Home() {
         <Categories />
         <FeaturedArtworks />
         <TopArtists />
+        {showPricing && <Pricing />}
       </main>
     </>
   );

@@ -2,9 +2,56 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { signUp, signIn } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
 
 export default function Register() {
   const [role, setRole] = useState('buyer'); // 'buyer' or 'artist'
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const router = useRouter();
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    await signIn.social({
+      provider: 'google',
+      callbackURL: '/'
+    });
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      return setError('Passwords do not match');
+    }
+    
+    setLoading(true);
+    setError(null);
+
+    const { data, error } = await signUp.email({
+      name,
+      email,
+      password,
+      role // sending role to custom field if implemented on backend
+    });
+
+    if (error) {
+      setError(error.message || 'Something went wrong');
+      setLoading(false);
+    } else {
+      if (role === 'artist') {
+        router.push('/dashboard/artist');
+      } else if (role === 'admin') {
+        router.push('/dashboard/admin');
+      } else {
+        router.push('/dashboard/user');
+      }
+    }
+  };
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-slate-50 flex items-center justify-center p-4 font-sans">
@@ -14,7 +61,13 @@ export default function Register() {
           <p className="text-slate-500 text-xs">Join ArtHub to purchase or publish artwork.</p>
         </div>
         
-        <form className="space-y-4">
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-medium">
+            {error}
+          </div>
+        )}
+
+        <form className="space-y-4" onSubmit={handleRegister}>
           {/* Full Name */}
           <div>
             <label className="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">Full Name</label>
@@ -26,6 +79,9 @@ export default function Register() {
               </div>
               <input 
                 type="text" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
                 placeholder="e.g. John Doe" 
                 className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors placeholder-slate-400" 
               />
@@ -43,6 +99,9 @@ export default function Register() {
               </div>
               <input 
                 type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 placeholder="email@example.com" 
                 className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors placeholder-slate-400" 
               />
@@ -52,7 +111,7 @@ export default function Register() {
           {/* Select Role */}
           <div>
             <label className="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">Select Role</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={() => setRole('buyer')}
@@ -63,7 +122,7 @@ export default function Register() {
                 }`}
               >
                 <span className={`font-bold text-sm ${role === 'buyer' ? 'text-indigo-600' : 'text-slate-700'}`}>User (Buyer)</span>
-                <span className="text-[10px] text-slate-500">Browse & Buy Art</span>
+                <span className="text-[10px] text-slate-500 text-center leading-tight mt-0.5 px-1">Browse & Buy Art</span>
               </button>
               <button
                 type="button"
@@ -75,7 +134,19 @@ export default function Register() {
                 }`}
               >
                 <span className={`font-bold text-sm ${role === 'artist' ? 'text-indigo-600' : 'text-slate-700'}`}>Artist</span>
-                <span className="text-[10px] text-slate-500">Upload & Sell Art</span>
+                <span className="text-[10px] text-slate-500 text-center leading-tight mt-0.5 px-1">Upload & Sell Art</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('admin')}
+                className={`flex flex-col items-center justify-center py-2.5 rounded-xl border transition-all duration-200 ${
+                  role === 'admin' 
+                    ? 'bg-indigo-50 border-indigo-500' 
+                    : 'bg-white border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <span className={`font-bold text-sm ${role === 'admin' ? 'text-indigo-600' : 'text-slate-700'}`}>Admin</span>
+                <span className="text-[10px] text-slate-500 text-center leading-tight mt-0.5 px-1">Manage Platform</span>
               </button>
             </div>
           </div>
@@ -92,6 +163,9 @@ export default function Register() {
                 </div>
                 <input 
                   type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                   placeholder="••••••••" 
                   className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors placeholder-slate-400 tracking-widest" 
                 />
@@ -107,6 +181,9 @@ export default function Register() {
                 </div>
                 <input 
                   type="password" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
                   placeholder="••••••••" 
                   className="w-full bg-white border border-slate-300 text-slate-900 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors placeholder-slate-400 tracking-widest" 
                 />
@@ -116,11 +193,17 @@ export default function Register() {
 
           {/* Submit Button */}
           <div className="pt-2 flex justify-center">
-            <button type="submit" className="flex items-center justify-center gap-2 w-full bg-indigo-600 text-white rounded-xl font-bold tracking-wide hover:bg-indigo-700 transition-colors py-2.5 text-[14px] shadow-sm">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
-              REGISTER
+            <button type="submit" disabled={loading} className="flex items-center justify-center gap-2 w-full bg-indigo-600 text-white rounded-xl font-bold tracking-wide hover:bg-indigo-700 transition-colors py-2.5 text-[14px] shadow-sm disabled:opacity-70">
+              {loading ? (
+                <span>Loading...</span>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  REGISTER
+                </>
+              )}
             </button>
           </div>
 
@@ -134,7 +217,7 @@ export default function Register() {
           </div>
 
           {/* Google Button */}
-          <button type="button" className="w-full flex items-center justify-center gap-2 bg-white border border-slate-300 text-slate-700 rounded-xl py-2.5 text-sm font-semibold hover:bg-slate-50 transition-colors shadow-sm">
+          <button type="button" onClick={handleGoogleSignIn} disabled={loading} className="w-full flex items-center justify-center gap-2 bg-white border border-slate-300 text-slate-700 rounded-xl py-2.5 text-sm font-semibold hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-70">
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />

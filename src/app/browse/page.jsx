@@ -1,218 +1,210 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Search, Filter, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
 
-const featuredArtworks = [
-  {
-    id: 1,
-    image: '/featured/artwork1.jpg',
-    category: 'SCULPTURE',
-    title: 'Shattered Grace',
-    artist: 'Jane Vincent',
-    price: '$600',
-    available: true,
-  },
-  {
-    id: 2,
-    image: '/featured/artwork2.jpg',
-    category: 'SCULPTURE',
-    title: 'The Silent Thinker',
-    artist: 'Diego Rivera',
-    price: '$850',
-    available: true,
-  },
-  {
-    id: 3,
-    image: '/featured/artwork3.jpg',
-    category: 'DIGITAL',
-    title: 'Neon Oasis',
-    artist: 'Gustav Klimt',
-    price: '$250',
-    available: true,
-  },
-  {
-    id: 4,
-    image: '/featured/artwork4.jpg',
-    category: 'PAINTING',
-    title: 'Ethereal Forest',
-    artist: 'Jane Vincent',
-    price: '$320',
-    available: true,
-  },
-  {
-    id: 5,
-    image: '/featured/artwork5.jpg',
-    category: 'DIGITAL',
-    title: 'Fragments of Time',
-    artist: 'ArtHub Curator',
-    price: '$120',
-    available: true,
-  },
-  {
-    id: 6,
-    image: '/featured/artwork6.jpg',
-    category: 'PAINTING',
-    title: 'Celestial Whispers',
-    artist: 'Gustav Klimt',
-    price: '$450',
-    available: true,
-  }
-];
+export default function BrowseArtworks() {
+    const [artworks, setArtworks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState("");
+    const [category, setCategory] = useState("All");
+    const [sort, setSort] = useState("newest");
+    const [minPrice, setMinPrice] = useState("");
+    const [maxPrice, setMaxPrice] = useState("");
+    const [page, setPage] = useState(1);
+    const limit = 8;
 
-export default function Browse() {
-  return (
-    <div className="min-h-screen bg-[#F8FAFC] text-gray-900 pt-20 pb-24 px-4 md:px-8 font-sans">
-      <div className="max-w-[1400px] mx-auto">
-        
-        {/* Header */}
-        <div className="mb-12 text-center md:text-left">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight text-gray-900">Explore Artworks</h1>
-          <p className="text-gray-500 text-lg max-w-2xl">Discover unique pieces created by verified artists from around the world. Browse our carefully curated collection.</p>
-        </div>
+    const categories = ["All", "Digital", "Painting", "Photography", "AI Art", "3D"];
 
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
-          
-          {/* Sidebar */}
-          <div className="w-full lg:w-[320px] shrink-0">
-            <div className="bg-white rounded-2xl border border-gray-200 p-7 shadow-sm sticky top-24">
-              
-              <div className="flex items-center justify-between mb-8 pb-5 border-b border-gray-100">
-                <div className="flex items-center gap-2 font-bold text-lg text-gray-900">
-                  <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                  </svg>
-                  Filters
-                </div>
-                <button className="text-red-500 hover:text-red-600 text-sm font-semibold flex items-center gap-1 transition-colors">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  Reset
-                </button>
-              </div>
+    useEffect(() => {
+        const fetchArtworks = async () => {
+            setLoading(true);
+            try {
+                let url = `http://localhost:5000/api/artworks?sort=${sort}`;
+                if (search) url += `&search=${search}`;
+                if (category !== "All") url += `&category=${category}`;
+                if (minPrice) url += `&minPrice=${minPrice}`;
+                if (maxPrice) url += `&maxPrice=${maxPrice}`;
 
-              {/* Search */}
-              <div className="mb-8">
-                <label className="block text-xs font-bold text-gray-500 mb-3 tracking-wider uppercase">Search</label>
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Title or artist..." 
-                    className="w-full bg-slate-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-sm"
-                  />
-                  <svg className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 transform -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-              </div>
+                const res = await fetch(url);
+                const data = await res.json();
+                setArtworks(data);
+            } catch (error) {
+                console.error("Failed to fetch artworks", error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-              {/* Category */}
-              <div className="mb-8">
-                <label className="block text-xs font-bold text-gray-500 mb-3 tracking-wider uppercase">Category</label>
-                <div className="relative">
-                  <select className="w-full bg-slate-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-700 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-sm font-medium">
-                    <option>All Categories</option>
-                    <option>Painting</option>
-                    <option>Sculpture</option>
-                    <option>Digital</option>
-                  </select>
-                  <svg className="w-4 h-4 text-gray-500 absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
+        const debounceTimer = setTimeout(() => {
+            fetchArtworks();
+            setPage(1); // reset to page 1 on filter change
+        }, 500);
 
-              {/* Price Range */}
-              <div className="mb-8">
-                <label className="block text-xs font-bold text-gray-500 mb-3 tracking-wider uppercase">Price Range</label>
-                <div className="flex items-center gap-3 mb-4">
-                  <input type="text" placeholder="Min" className="w-full bg-slate-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-sm font-medium" />
-                  <span className="text-gray-400 font-bold">-</span>
-                  <input type="text" placeholder="Max" className="w-full bg-slate-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-sm font-medium" />
-                </div>
-                <button className="w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl transition-colors text-sm shadow-md hover:shadow-lg">
-                  Apply Price
-                </button>
-              </div>
+        return () => clearTimeout(debounceTimer);
+    }, [search, category, sort, minPrice, maxPrice]);
 
-              {/* Availability */}
-              <div className="mb-2">
-                <label className="block text-xs font-bold text-gray-500 mb-3 tracking-wider uppercase">Availability</label>
-                <div className="relative">
-                  <select className="w-full bg-slate-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-700 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-sm font-medium">
-                    <option>All Items</option>
-                    <option>Available</option>
-                    <option>Sold</option>
-                  </select>
-                  <svg className="w-4 h-4 text-gray-500 absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
+    // Client-side pagination since backend doesn't paginate currently
+    const paginatedArtworks = artworks.slice((page - 1) * limit, page * limit);
+    const totalPages = Math.ceil(artworks.length / limit) || 1;
 
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 bg-white border border-gray-200 p-4 px-6 rounded-2xl shadow-sm">
-              <p className="text-gray-500 text-sm font-medium mb-3 sm:mb-0">
-                Showing <span className="font-bold text-gray-900">6</span> of <span className="font-bold text-gray-900">6</span> Artworks
-              </p>
-              <div className="flex items-center gap-2 bg-slate-50 border border-gray-200 rounded-lg px-3 py-1.5">
-                <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-                <select className="bg-transparent text-gray-700 text-sm font-bold focus:outline-none cursor-pointer appearance-none pr-4">
-                  <option>Sort by: Newest</option>
-                  <option>Price: Low to High</option>
-                  <option>Price: High to Low</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-              {featuredArtworks.map((artwork) => (
-                <div key={artwork.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-indigo-400 hover:shadow-2xl transition-all duration-300 group flex flex-col shadow-sm">
-                  {/* Image Container */}
-                  <div className="relative h-60 overflow-hidden bg-gray-100">
-                    <img 
-                      src={artwork.image} 
-                      alt={artwork.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
-                    />
-                    {artwork.available && (
-                      <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md">
-                        AVAILABLE
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Content */}
-                  <div className="p-6 flex-grow flex flex-col">
-                    <p className="text-indigo-600 bg-indigo-50 inline-block px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider mb-4 w-max">{artwork.category}</p>
-                    <h3 className="text-gray-900 font-extrabold text-xl mb-1">{artwork.title}</h3>
-                    <p className="text-gray-500 text-sm mb-6 font-medium">By: <span className="text-gray-900 font-bold">{artwork.artist}</span></p>
+    return (
+        <div className="min-h-screen bg-slate-50 font-sans pb-20">
+            {/* Header Section */}
+            <div className="bg-white border-b border-slate-200 pt-8 pb-6 px-6 lg:px-12">
+                <div className="max-w-7xl mx-auto">
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-6">Discover Extraordinary Art</h1>
                     
-                    <div className="mt-auto pt-5 border-t border-gray-100 flex justify-between items-end">
-                      <div>
-                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Price</p>
-                         <p className="text-gray-900 text-2xl font-black">{artwork.price}</p>
-                      </div>
-                      <Link href={`/artworks/${artwork.id}`} className="text-white bg-gray-900 hover:bg-indigo-600 px-5 py-2.5 rounded-xl text-xs font-bold transition-colors shadow-sm">
-                        View Details
-                      </Link>
+                    {/* Search and Filters */}
+                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div className="relative w-full md:w-96">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                            <input 
+                                type="text"
+                                placeholder="Search by title..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            />
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                            <select 
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                className="bg-white border border-slate-200 text-slate-700 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                            >
+                                {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
+
+                            <select 
+                                value={sort}
+                                onChange={(e) => setSort(e.target.value)}
+                                className="bg-white border border-slate-200 text-slate-700 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                            >
+                                <option value="newest">Newest First</option>
+                                <option value="price_asc">Price: Low to High</option>
+                                <option value="price_desc">Price: High to Low</option>
+                            </select>
+                            
+                            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5">
+                                <span className="text-sm text-slate-500 font-medium">Price:</span>
+                                <input 
+                                    type="number" 
+                                    placeholder="Min" 
+                                    value={minPrice}
+                                    onChange={(e) => setMinPrice(e.target.value)}
+                                    className="w-16 py-1.5 px-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                />
+                                <span className="text-slate-300">-</span>
+                                <input 
+                                    type="number" 
+                                    placeholder="Max" 
+                                    value={maxPrice}
+                                    onChange={(e) => setMaxPrice(e.target.value)}
+                                    className="w-16 py-1.5 px-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                />
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </div>
-              ))}
             </div>
 
-          </div>
+            {/* Grid Section */}
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 mt-10">
+                {loading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[...Array(8)].map((_, i) => (
+                            <div key={i} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm animate-pulse h-[360px]">
+                                <div className="w-full h-48 bg-slate-200 rounded-xl mb-4"></div>
+                                <div className="h-5 w-3/4 bg-slate-200 rounded mb-2"></div>
+                                <div className="h-4 w-1/2 bg-slate-200 rounded mb-4"></div>
+                                <div className="h-10 w-full bg-slate-200 rounded-xl mt-auto"></div>
+                            </div>
+                        ))}
+                    </div>
+                ) : paginatedArtworks.length > 0 ? (
+                    <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {paginatedArtworks.map(artwork => (
+                                <Link href={`/artworks/${artwork._id}`} key={artwork._id} className="group flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all duration-300 overflow-hidden">
+                                    <div className="aspect-square w-full overflow-hidden relative bg-slate-100">
+                                        <img 
+                                            src={artwork.imageUrl || 'https://via.placeholder.com/400'} 
+                                            alt={artwork.title} 
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-bold text-slate-700 shadow-sm">
+                                            {artwork.category}
+                                        </div>
+                                    </div>
+                                    <div className="p-5 flex flex-col flex-grow">
+                                        <h3 className="font-bold text-slate-900 text-lg line-clamp-1 mb-1">{artwork.title}</h3>
+                                        <p className="text-sm text-slate-500 mb-4 line-clamp-1">by {artwork.artistName}</p>
+                                        <div className="mt-auto flex items-center justify-between">
+                                            <span className="text-lg font-extrabold text-indigo-600">${artwork.price?.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-center gap-2 mt-12">
+                                <button 
+                                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                                    disabled={page === 1}
+                                    className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                
+                                <div className="flex items-center gap-1">
+                                    {[...Array(totalPages)].map((_, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => setPage(i + 1)}
+                                            className={`w-10 h-10 rounded-xl font-bold text-sm transition-colors ${
+                                                page === i + 1 
+                                                    ? 'bg-indigo-600 text-white shadow-sm' 
+                                                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                                            }`}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <button 
+                                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={page === totalPages}
+                                    className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <div className="text-center py-24 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Search className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-2">No artworks found</h3>
+                        <p className="text-slate-500 max-w-sm mx-auto">We couldn't find anything matching your current filters. Try adjusting your search criteria.</p>
+                        <button 
+                            onClick={() => {
+                                setSearch(""); setCategory("All"); setMinPrice(""); setMaxPrice("");
+                            }}
+                            className="mt-6 px-6 py-2.5 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition-colors"
+                        >
+                            Clear All Filters
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

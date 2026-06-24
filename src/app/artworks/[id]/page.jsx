@@ -1,81 +1,52 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-
-const featuredArtworks = [
-  {
-    id: 1,
-    image: '/featured/artwork1.jpg',
-    category: 'Sculpture',
-    date: '6/6/2026',
-    title: 'Shattered Grace',
-    description: 'Modern wire frame sculpture that casts dramatic shifting shadows under direct spotlights, showing geometric precision and abstract form.',
-    price: '$600.00',
-    artist: 'Jane Vincent',
-    artistAvatar: '/artists/frida-kahlo.png'
-  },
-  {
-    id: 2,
-    image: '/featured/artwork2.jpg',
-    category: 'Sculpture',
-    date: '6/6/2026',
-    title: 'The Silent Thinker',
-    description: 'Carved clay sculpture demonstrating the gravity of human reflection in a fast-paced technology world.',
-    price: '$850.00',
-    artist: 'Diego Rivera',
-    artistAvatar: '/artists/diego-rivera.png'
-  },
-  {
-    id: 3,
-    image: '/featured/artwork3.jpg',
-    category: 'Digital',
-    date: '6/6/2026',
-    title: 'Neon Oasis',
-    description: 'Cyberpunk inspired glowing 3D render exploring virtual escapism and synthetic urban nature.',
-    price: '$250.00',
-    artist: 'Gustav Klimt',
-    artistAvatar: '/artists/gustav-klimt.png'
-  },
-  {
-    id: 4,
-    image: '/featured/artwork4.jpg',
-    category: 'Painting',
-    date: '6/6/2026',
-    title: 'Ethereal Forest',
-    description: 'Watercolors capturing the misty landscapes of Northern cascades, layering colors for depth and tranquility.',
-    price: '$320.00',
-    artist: 'Jane Vincent',
-    artistAvatar: '/artists/frida-kahlo.png'
-  },
-  {
-    id: 5,
-    image: '/featured/artwork5.jpg',
-    category: 'Digital',
-    date: '6/6/2026',
-    title: 'Fragments of Time',
-    description: 'A striking digital abstract illustration investigating the impermanence of digital memory and fractured interfaces.',
-    price: '$120.00',
-    artist: 'ArtHub Curator',
-    artistAvatar: '/artists/diego-rivera.png'
-  },
-  {
-    id: 6,
-    image: '/featured/artwork6.jpg',
-    category: 'Painting',
-    date: '6/6/2026',
-    title: 'Celestial Whispers',
-    description: 'A beautiful oil-on-canvas representation of starry dynamics. Inspired by cosmic dust clouds and early impressionist techniques.',
-    price: '$450.00',
-    artist: 'Gustav Klimt',
-    artistAvatar: '/artists/gustav-klimt.png'
-  }
-];
+import Link from 'next/link';
 
 export default function ArtworkDetails() {
   const params = useParams();
-  const artworkId = parseInt(params.id);
-  const artwork = featuredArtworks.find(a => a.id === artworkId) || featuredArtworks[0];
+  const [artwork, setArtwork] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchArtwork = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/artworks/${params.id}`);
+        if (!res.ok) throw new Error("Artwork not found");
+        const data = await res.json();
+        setArtwork(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (params?.id) {
+      fetchArtwork();
+    }
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  if (error || !artwork) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white text-gray-800">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Oops!</h2>
+          <p>{error || "Artwork not found"}</p>
+          <Link href="/browse" className="text-indigo-600 hover:underline mt-4 inline-block">Back to Browse</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -99,7 +70,7 @@ export default function ArtworkDetails() {
             </div>
 
             <img 
-              src={artwork.image} 
+              src={artwork.imageUrl} 
               alt={artwork.title} 
               className="max-w-full max-h-[600px] object-contain shadow-lg" 
             />
@@ -116,12 +87,12 @@ export default function ArtworkDetails() {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                {artwork.date}
+                {new Date(artwork.createdAt).toLocaleDateString()}
               </span>
             </div>
 
             <p className="text-gray-400 tracking-wider text-sm mb-3 uppercase font-semibold">
-              ID#{artwork.id.toString().padStart(5, '0')}
+              ID#{artwork._id.slice(-5)}
             </p>
             
             <h1 className="text-4xl md:text-5xl font-serif text-gray-900 mb-4 leading-tight">
@@ -135,10 +106,12 @@ export default function ArtworkDetails() {
             {/* Artist Box */}
             <div className="border border-gray-200 rounded-2xl p-4 flex items-center justify-between mb-8 bg-gray-50/80 shadow-sm">
               <div className="flex items-center gap-4">
-                <img src={artwork.artistAvatar} alt={artwork.artist} className="w-12 h-12 rounded-full object-cover border border-white shadow-sm bg-white" />
+                <img src={artwork.artistId?.avatar || '/default-avatar.png'} alt={artwork.artistId?.name || 'Artist'} className="w-12 h-12 rounded-full object-cover border border-white shadow-sm bg-white" />
                 <div>
                   <p className="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider mb-0.5">Artist</p>
-                  <p className="text-gray-900 font-bold text-sm">{artwork.artist}</p>
+                  <Link href={`/artists/${artwork.artistId?._id}`} className="text-gray-900 font-bold text-sm hover:text-indigo-600 transition-colors">
+                    {artwork.artistId?.name || 'Unknown Artist'}
+                  </Link>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-100">
@@ -152,11 +125,13 @@ export default function ArtworkDetails() {
             <div className="flex items-end justify-between mb-8 border-b border-gray-100 pb-8">
               <div>
                 <p className="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider mb-1.5">Purchase Price</p>
-                <p className="text-4xl font-black text-gray-900">{artwork.price}</p>
+                <p className="text-4xl font-black text-gray-900">${artwork.price?.toFixed(2)}</p>
               </div>
               <div className="text-right">
                 <p className="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider mb-1.5">Availability</p>
-                <p className="text-emerald-600 font-extrabold text-sm tracking-wide uppercase">Available</p>
+                <p className={`font-extrabold text-sm tracking-wide uppercase ${artwork.status === 'sold' ? 'text-red-500' : 'text-emerald-600'}`}>
+                  {artwork.status || 'Available'}
+                </p>
               </div>
             </div>
 
