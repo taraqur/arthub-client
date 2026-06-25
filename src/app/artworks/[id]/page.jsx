@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from "@/lib/auth-client";
 import toast from "react-hot-toast";
+import Comments from '@/components/Comments';
 
 export default function ArtworkDetails() {
   const params = useParams();
@@ -254,22 +255,7 @@ export default function ArtworkDetails() {
 
         {/* Reviews Section */}
         <div className="mt-16 pt-8 border-t border-gray-100">
-          <div className="flex items-center gap-2 mb-8">
-            <svg className="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Reviews & Comments (0)</h2>
-          </div>
-          
-          <div className="border border-gray-300 rounded-xl py-5 px-6 mb-12 bg-white shadow-sm flex items-center">
-            <p className="text-sm text-gray-500">
-              Please <a href="/login" className="text-indigo-600 font-bold hover:underline">sign in</a> and verify your purchase history to leave a review.
-            </p>
-          </div>
-          
-          <div className="text-center py-12">
-            <p className="text-gray-400 font-medium">No comments or reviews have been posted yet.</p>
-          </div>
+          <Comments artworkId={artwork._id} />
         </div>
 
       </div>

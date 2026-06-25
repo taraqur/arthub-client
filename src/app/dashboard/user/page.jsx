@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Loader2, Camera } from "lucide-react";
+import { uploadImage } from "@/services/imageUpload";
 
 export default function UserProfilePage() {
   const [profile, setProfile] = useState({ name: "", email: "", image: "", subscriptionTier: "free" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetchProfile();
@@ -29,6 +32,22 @@ export default function UserProfilePage() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingImage(true);
+      const imageUrl = await uploadImage(file);
+      setProfile(prev => ({ ...prev, image: imageUrl }));
+    } catch (err) {
+      alert("Failed to upload image: " + err.message);
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -68,15 +87,22 @@ export default function UserProfilePage() {
         {/* Banner */}
         <div className="h-32 bg-gradient-to-r from-blue-400 to-indigo-500 relative">
             <div className="absolute -bottom-12 left-8">
-                <div className="relative group">
+                <div className="relative group" onClick={() => fileInputRef.current?.click()}>
                     <img 
                         src={profile.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'default'}`} 
                         alt={profile.name || 'User'} 
-                        className="w-24 h-24 rounded-full border-4 border-white object-cover bg-white"
+                        className={`w-24 h-24 rounded-full border-4 border-white object-cover bg-white ${uploadingImage ? 'opacity-50' : ''}`}
                     />
                     <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                        <Camera className="w-6 h-6 text-white" />
+                        {uploadingImage ? <Loader2 className="w-6 h-6 text-white animate-spin" /> : <Camera className="w-6 h-6 text-white" />}
                     </div>
+                    <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        onChange={handleImageUpload} 
+                        accept="image/*" 
+                        className="hidden" 
+                    />
                 </div>
             </div>
             <div className="absolute bottom-4 right-4">

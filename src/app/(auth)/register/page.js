@@ -111,7 +111,7 @@ export default function Register() {
           {/* Select Role */}
           <div>
             <label className="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">Select Role</label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setRole('buyer')}
@@ -135,18 +135,6 @@ export default function Register() {
               >
                 <span className={`font-bold text-sm ${role === 'artist' ? 'text-indigo-600' : 'text-slate-700'}`}>Artist</span>
                 <span className="text-[10px] text-slate-500 text-center leading-tight mt-0.5 px-1">Upload & Sell Art</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setRole('admin')}
-                className={`flex flex-col items-center justify-center py-2.5 rounded-xl border transition-all duration-200 ${
-                  role === 'admin' 
-                    ? 'bg-indigo-50 border-indigo-500' 
-                    : 'bg-white border-slate-200 hover:border-slate-300'
-                }`}
-              >
-                <span className={`font-bold text-sm ${role === 'admin' ? 'text-indigo-600' : 'text-slate-700'}`}>Admin</span>
-                <span className="text-[10px] text-slate-500 text-center leading-tight mt-0.5 px-1">Manage Platform</span>
               </button>
             </div>
           </div>

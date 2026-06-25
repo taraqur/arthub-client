@@ -57,7 +57,7 @@ export default function Comments({ artworkId }) {
     
     try {
       setSubmitting(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/comments`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artworks/${artworkId}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ artworkId, comment: newComment }),

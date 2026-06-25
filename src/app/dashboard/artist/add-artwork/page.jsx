@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, Loader2, Info } from "lucide-react";
+import { uploadImage } from "@/services/imageUpload";
 
 export default function AddArtworkPage() {
   const router = useRouter();
@@ -27,29 +28,6 @@ export default function AddArtworkPage() {
     }
   };
 
-  const uploadToImgbb = async (file) => {
-    // Note: In production, the IMGBB API key should be injected via env variables
-    const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || "dummy"; 
-    
-    // For the sake of this mock/simulation, if no valid key is provided, we return a placeholder.
-    if (IMGBB_API_KEY === "dummy") {
-       return new Promise(resolve => setTimeout(() => resolve("https://api.dicebear.com/7.x/shapes/svg?seed=" + Math.random()), 1000));
-    }
-
-    const formData = new FormData();
-    formData.append('image', file);
-
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-      method: 'POST',
-      body: formData
-    });
-    const data = await res.json();
-    if (data.success) {
-      return data.data.url;
-    }
-    throw new Error("Failed to upload image");
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -57,7 +35,7 @@ export default function AddArtworkPage() {
       
       let imageUrl = "";
       if (formData.image) {
-        imageUrl = await uploadToImgbb(formData.image);
+        imageUrl = await uploadImage(formData.image);
       }
 
       const payload = {
