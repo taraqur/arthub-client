@@ -45,7 +45,8 @@ export default function ArtworkDetails() {
           const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/create-checkout-session`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ artworkId: artwork._id })
+              body: JSON.stringify({ artworkId: artwork._id }),
+              credentials: "include"
           });
           const data = await res.json();
 

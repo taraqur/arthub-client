@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Star, Zap, Loader2 } from "lucide-react";
+import { Check, Star, Zap, Loader2, Settings } from "lucide-react";
 
 export default function SubscriptionPage() {
   const [currentTier, setCurrentTier] = useState("free");
@@ -10,7 +10,35 @@ export default function SubscriptionPage() {
 
   useEffect(() => {
     fetchProfile();
+    
+    // Check for success and session_id in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const sessionId = urlParams.get('session_id');
+    
+    if (success && sessionId) {
+      verifyPaymentSession(sessionId);
+    }
   }, []);
+
+  const verifyPaymentSession = async (sessionId) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/verify-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+        credentials: 'include'
+      });
+      if (res.ok) {
+        // Clear the URL to avoid re-verifying on refresh
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // Refresh the profile to get the updated tier
+        fetchProfile();
+      }
+    } catch (e) {
+      console.error('Failed to verify session', e);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -23,6 +51,24 @@ export default function SubscriptionPage() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/create-portal-session`, {
+        method: "POST",
+        credentials: "include"
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.message || "Failed to open Customer Portal");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred while opening the portal.");
     }
   };
 
@@ -86,7 +132,7 @@ export default function SubscriptionPage() {
       name: "Premium Patron",
       price: "24.99",
       description: "The ultimate experience with exclusive artist perks.",
-      icon: Star, // using star again or a crown if we had it
+      icon: Star,
       features: [
         "Everything in Pro",
         "Exclusive VIP only artworks",
@@ -101,9 +147,20 @@ export default function SubscriptionPage() {
 
   return (
     <div className="max-w-6xl mx-auto w-full pb-10">
-      <div className="mb-10 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Subscription Plans</h1>
-        <p className="text-gray-500 mt-2 max-w-2xl mx-auto">Upgrade your experience to get early access to exclusive drops, high-resolution downloads, and priority support.</p>
+      <div className="mb-10 flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Subscription Plans</h1>
+          <p className="text-gray-500 mt-2 max-w-2xl mx-auto md:mx-0">Upgrade your experience to get early access to exclusive drops, high-resolution downloads, and priority support.</p>
+        </div>
+        {currentTier !== "free" && (
+          <button 
+            onClick={handleManageSubscription}
+            className="flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-800 transition-colors shadow-md"
+          >
+            <Settings className="w-5 h-5" />
+            Manage Subscription
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

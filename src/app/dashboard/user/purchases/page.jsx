@@ -10,7 +10,35 @@ export default function PurchaseHistoryPage() {
 
   useEffect(() => {
     fetchPurchases();
+    
+    // Check for success and session_id in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const sessionId = urlParams.get('session_id');
+    
+    if (success && sessionId) {
+      verifyPaymentSession(sessionId);
+    }
   }, []);
+
+  const verifyPaymentSession = async (sessionId) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/verify-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+        credentials: 'include'
+      });
+      if (res.ok) {
+        // Clear the URL to avoid re-verifying on refresh
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // Refresh the purchases to get the updated list
+        fetchPurchases();
+      }
+    } catch (e) {
+      console.error('Failed to verify session', e);
+    }
+  };
 
   const fetchPurchases = async () => {
     try {

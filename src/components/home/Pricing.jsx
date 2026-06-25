@@ -1,14 +1,33 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
 
 export default function Pricing() {
   const [openFaq, setOpenFaq] = useState(null);
   const [upgrading, setUpgrading] = useState(null);
+  const [currentTier, setCurrentTier] = useState("free");
   const router = useRouter();
   const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session) {
+      fetchProfile();
+    }
+  }, [session]);
+
+  const fetchProfile = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentTier(data.subscriptionTier || "free");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const handleSubscribe = async (tier) => {
     if (!session) {
@@ -16,7 +35,10 @@ export default function Pricing() {
       return;
     }
 
-
+    if (tier === currentTier) {
+      alert("You are already subscribed to this package.");
+      return;
+    }
 
     try {
       setUpgrading(tier);
@@ -24,14 +46,14 @@ export default function Pricing() {
       const res = await fetch("/api/checkout_sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier }),
+        body: JSON.stringify({ tier, userId: session.user.id, buyerName: session.user.name || session.user.fullName }),
       });
       const data = await res.json();
       
       if (res.ok && data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error || "Failed to initiate subscription upgrade.");
+        alert(data.message || data.error || "Failed to initiate subscription upgrade.");
       }
     } catch (e) {
       console.error(e);

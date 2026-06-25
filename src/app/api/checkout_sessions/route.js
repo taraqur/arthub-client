@@ -10,6 +10,8 @@ export async function POST(req) {
 
         const body = await req.json();
         const tier = body.tier;
+        const userId = body.userId;
+        const buyerName = body.buyerName;
 
         let priceId = '';
         if (tier === 'pro') {
@@ -35,6 +37,12 @@ export async function POST(req) {
             mode: 'subscription',
             success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/#pricing`,
+            metadata: {
+                type: 'subscription',
+                tier: tier,
+                userId: userId,
+                buyerName: buyerName
+            }
         });
         
         return NextResponse.json({ url: session.url });
