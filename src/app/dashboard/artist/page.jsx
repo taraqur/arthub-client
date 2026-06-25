@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Palette, ShoppingCart, TrendingUp } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
 
 export default function ArtistDashboard() {
+  const { data: session } = useSession();
   const [stats, setStats] = useState({
     totalArtworks: 0,
     activeSales: 0,
@@ -14,14 +16,18 @@ export default function ArtistDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (session?.user?.id) {
+        fetchDashboardData(session.user.id);
+    } else if (session === null) {
+        setLoading(false);
+    }
+  }, [session]);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (artistId) => {
     try {
       setLoading(true);
       const [artworksRes, salesRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artworks`, { credentials: "include" }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artworks?artistId=${artistId}`, { credentials: "include" }),
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sales/history`, { credentials: "include" })
       ]);
 

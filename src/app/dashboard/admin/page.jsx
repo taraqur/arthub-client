@@ -87,10 +87,10 @@ export default function AdminDash() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <SalesChart />
+          <SalesChart data={stats.salesData} />
         </div>
         <div className="lg:col-span-1">
-          <CategoryChart />
+          <CategoryChart data={stats.categoryData} />
         </div>
       </div>
 

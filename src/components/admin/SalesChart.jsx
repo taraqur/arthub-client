@@ -28,10 +28,10 @@ export default function SalesChart({ data }) {
           Last 6 Months ▾
         </button>
       </div>
-      <div className="flex-1 w-full min-h-[250px]">
+      <div className="w-full h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={data}
+            data={chartData}
             margin={{ top: 10, right: 0, left: -20, bottom: 0 }}
           >
             <defs>

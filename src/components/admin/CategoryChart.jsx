@@ -16,7 +16,7 @@ export default function CategoryChart({ data }) {
         Category Distribution
       </h3>
 
-      <div className="w-full flex-1 min-h-[250px] relative mt-10">
+      <div className="w-full h-[250px] relative mt-10">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

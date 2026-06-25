@@ -3,30 +3,26 @@
 import { useEffect, useState } from "react";
 import { Edit2, Trash2, Plus } from "lucide-react";
 import Link from "next/link";
+import { useSession } from "@/lib/auth-client";
 
 export default function ManageArtworksPage() {
+  const { data: session } = useSession();
   const [artworks, setArtworks] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchArtworks();
-  }, []);
+    if (session?.user?.id) {
+      fetchArtworks(session.user.id);
+    } else if (session === null) {
+      setLoading(false);
+    }
+  }, [session]);
 
-  const fetchArtworks = async () => {
+  const fetchArtworks = async (artistId) => {
     try {
       setLoading(true);
-      // In a real implementation we would fetch only the artist's artworks
-      // Assuming getSession context can fetch artist's specific artworks
-      // Wait, getArtworks allows passing artistId but we don't know it here on client.
-      // Actually we should have a specific endpoint or just rely on the server filtering.
-      // Let's use the public endpoint for now, but in reality we should fetch from /api/artworks?artistId=me
-      // Better yet, update the backend to have a GET /api/artworks/me or similar.
-      // For now, let's fetch all and the user will see it. 
-      // Actually, since this is a mock frontend for the artist, we'll fetch all artworks
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artworks`, { credentials: "include" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artworks?artistId=${artistId}`, { credentials: "include" });
       if (res.ok) {
-        // Filter on frontend for now if needed, but we don't have artistId. 
-        // Let's just display what we get from the API
         const data = await res.json();
         setArtworks(data);
       }
