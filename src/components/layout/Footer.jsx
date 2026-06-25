@@ -111,7 +111,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-gray-700/80 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm font-medium">
           <p className="text-gray-400">
-            ©Copyright 2024 <span className="text-white font-bold">ArtHub</span> | Design By <span className="text-white font-bold">Md. Taraqur Rahman</span>
+            ©Copyright 2026 <span className="text-white font-bold">ArtHub</span> | Design By <span className="text-white font-bold">Md. Taraqur Rahman</span>
           </p>
           <div className="flex gap-6 text-white font-semibold">
             <Link href="#" className="hover:text-gray-300 transition-colors">Support Center</Link>

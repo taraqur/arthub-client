@@ -19,7 +19,7 @@ export default function Register() {
     setLoading(true);
     await signIn.social({
       provider: 'google',
-      callbackURL: '/'
+      callbackURL: typeof window !== 'undefined' ? `${window.location.origin}/` : '/'
     });
   };
 

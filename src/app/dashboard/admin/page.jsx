@@ -100,11 +100,11 @@ export default function AdminDash() {
       </div>
 
       {/* Footer / Copyright area inside layout */}
-      <div className="pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-400 font-medium border-t border-gray-100">
-        <div className="flex flex-col gap-1">
+      <div className="pt-8 flex flex-col md:flex-row justify-between items-start text-xs text-gray-400 font-medium border-t border-gray-100">
+        <div className="flex flex-col gap-2 md:w-1/2">
           <h4 className="text-gray-900 font-bold text-base tracking-tight">ArtHub Visionary Marketplace</h4>
-          <p className="max-w-xs leading-relaxed">Empowering digital artists through cutting-edge curation and high-end collector engagement.</p>
-          <p className="mt-2">© 2024 ArtHub Visionary Marketplace. All rights reserved.</p>
+          <p className="leading-relaxed">Empowering digital artists through cutting-edge curation and high-end collector engagement.</p>
+          <p className="mt-2">©Copyright 2026 <span className="font-bold text-gray-700">ArtHub</span> | Design By <span className="font-bold text-gray-700">Md. Taraqur Rahman</span></p>
         </div>
         
         <div className="flex gap-12 mt-6 md:mt-0">
