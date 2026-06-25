@@ -35,10 +35,10 @@ export default function Hero() {
       {/* Carousel Content Container */}
       <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
         <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-6 drop-shadow-lg tracking-tight">
-          Placeholder Title
+          Art That Speaks To Your Soul
         </h1>
         <p className="text-lg md:text-xl text-gray-200 mb-8 drop-shadow-md">
-          Placeholder text goes here. The user will provide the actual text later.
+          Unlock a world of imagination with our curated collection of original artworks.
         </p>
         <button className="bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-gray-200 transition-colors">
           Explore Collection
